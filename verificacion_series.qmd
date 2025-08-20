@@ -1,1 +1,71 @@
+---
+title: "Verificación de Series Temporales"
+format: html
+editor: visual
+---
+
+## Importar datos
+
+```{r}
+library(readxl)
+
+SERIETEMPORAL_PP <- read_excel("C:/Users/USER/Downloads/SERIETEMPORAL_PP.xlsx")
+SERIETEMPORAL_TA <- read_excel("C:/Users/USER/Downloads/SERIETEMPORAL_TA.xlsx
+```
+
+## Instalar y cargar paquetes
+```{r}
+# install.packages("lubridate") # solo si no está instalado
+library(lubridate)
+library(dplyr)
+```
+
+## Crear vector con los dias de 
+
+```{r}
+dias <- seq.Date(
+  from = as.Date("2011-01-01"),
+  to   = as.Date("2024-12-31"),
+  by   = "day"
+)
+dias
+
+# La diferencia entre días consecutivos debe ser siempre 1
+all(diff(dias) == 1)
+
+
+#Revisando la clase de la columna fecha
+class(SERIETEMPORAL_PP$FECHA)
+
+class(SERIETEMPORAL_TA$FECHA)
+
+# Convirtiendo columna fecha clase Charapter a Date
+SERIETEMPORAL_PP$FECHA <- dmy(SERIETEMPORAL_PP$FECHA)
+SERIETEMPORAL_TA$FECHA <- dmy(SERIETEMPORAL_TA$FECHA)
+
+Estaciones_de_PP <- unique(SERIETEMPORAL_PP$ESTACION)
+Estaciones_de_PP
+Estaciones_de_TA <- unique(SERIETEMPORAL_TA$ESTACION)
+Estaciones_de_TA
+
+
+Combinaciones_Estaciones_y_fechas <- expand.grid( fecha =dias, estacion =Estaciones_de_PP)
+Combinaciones_Estaciones_y_fechas_TA <- expand.grid( fecha =dias, estacion =Estaciones_de_TA)
+
+
+faltantes_PP <- anti_join(
+  Combinaciones_Estaciones_y_fechas, 
+  SERIETEMPORAL_PP, 
+  by = c("fecha" = "FECHA", "estacion" = "ESTACION")
+  )  
+nrow(faltantes_PP)
+
+faltantes_TA <- anti_join(
+  Combinaciones_Estaciones_y_fechas_TA,
+  SERIETEMPORAL_TA,
+  by = c("fecha" = "FECHA", "estacion" = "ESTACION")
+  )
+nrow(faltantes_TA)
+
+```
 
